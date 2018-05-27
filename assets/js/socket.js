@@ -10,25 +10,43 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 socket.connect()
 
 // Now that you are connected, you can join channels with a topic:
-let channel           = socket.channel("game", "muh_player")
+let channel           = socket.channel("game", "muh_player"+Math.random())
 let chatInput         = document.querySelector("#chat-input")
 let messagesContainer = document.querySelector("#messages")
 
 channel.on("sub:move", payload => {
-  let messageItem = document.createElement("li");
-  messageItem.innerText = payload.position.x;
-  messagesContainer.appendChild(messageItem);
-});
-
-// chatInput.addEventListener("keypress", event => {
-//   if(event.keyCode === 13){
-//     channel.push("new_msg", {body: chatInput.value})
-//     chatInput.value = ""
-//   }
-// })
+  update_sub(payload)
+})
 
 channel.join()
   .receive("ok", resp => { console.log("Joined successfully", resp) })
   .receive("error", resp => { console.log("Unable to join", resp) })
+
+
+
+var subs = new Map()
+
+class Sub {
+  constructor(data) {
+    this._data = data
+    this._element = document.createElement("div")
+    this._element.setAttribute("class", "sub")
+    messagesContainer.appendChild(this._element)
+  }
+
+  update(data) {
+    this._data = data
+    this._element.setAttribute("style", "left: " + this._data.position.x + "px; top: "+this._data.position.y+"px;")
+  }
+
+}
+
+function update_sub(data) {
+  if (subs[data.player_id] == null) {
+    subs[data.player_id] = new Sub(data)
+  }
+
+  subs[data.player_id].update(data)
+}
 
 export default socket
