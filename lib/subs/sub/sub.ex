@@ -8,6 +8,17 @@ defmodule Subs.Sub do
   end
 
   def update(sub, game_state) do
+    sub |>
+    movement_update(game_state) |>
+    network_update(game_state)
+  end
+
+  def movement_update(sub, game_state) do
     Map.merge(sub, %{position: %{x: sub.position.x + 2 * game_state.delta_time(), y: sub.position.y}})
+  end
+
+  def network_update(sub, game_state) do
+    SubsWeb.Endpoint.broadcast!("game", "sub:move", sub)
+    sub
   end
 end

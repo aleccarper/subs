@@ -7,6 +7,6 @@ defmodule Subs.GameObject do
   end
 
   def update(obj, game_state) do
-    Map.merge(obj, %{data: obj.module.update(obj.data, game_state)}) |> IO.inspect
+    Map.merge(obj, %{data: obj.module.update(obj.data, game_state)})
   end
 end
