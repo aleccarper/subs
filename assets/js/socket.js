@@ -9,8 +9,8 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 
 socket.connect()
 
-// Now that you are connected, you can join channels with a topic:
-let channel           = socket.channel("game", "muh_player"+Math.random())
+var player_id = "muh_player"+Math.random()
+let channel           = socket.channel("game", player_id)
 let chatInput         = document.querySelector("#chat-input")
 let messagesContainer = document.querySelector("#messages")
 
@@ -23,22 +23,26 @@ channel.join()
   .receive("error", resp => { console.log("Unable to join", resp) })
 
 
-
 var subs = new Map()
 
 class Sub {
   constructor(data) {
     this._data = data
-    this._element = document.createElement("div")
-    this._element.setAttribute("class", "sub")
-    messagesContainer.appendChild(this._element)
+    this._geometry = new THREE.BoxGeometry( 1, 1, 1 );
+    this._material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    this._model = new THREE.Mesh( this._geometry, this._material );
+    scene.add(this._model);
   }
 
   update(data) {
     this._data = data
-    this._element.setAttribute("style", "left: " + this._data.position.x + "px; top: "+this._data.position.y+"px;")
+    this._model.position.x = this._data.position.x
+    this._model.position.y = this._data.position.y
   }
 
+  position() {
+    return this._data.position
+  }
 }
 
 function update_sub(data) {
@@ -48,5 +52,27 @@ function update_sub(data) {
 
   subs[data.player_id].update(data)
 }
+
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize( window.innerWidth, window.innerHeight );
+document.body.appendChild( renderer.domElement );
+
+camera.position.z = 25;
+
+var animate = function () {
+  requestAnimationFrame( animate );
+  if (subs[player_id] != null) {
+    camera.position.x = subs[player_id].position().x
+    camera.position.y = subs[player_id].position().y
+  }
+  renderer.render(scene, camera);
+};
+
+animate();
+
+
 
 export default socket
