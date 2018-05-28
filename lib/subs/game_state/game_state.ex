@@ -17,6 +17,21 @@ defmodule Subs.GameState do
     Map.merge(state, %{game_objects: [obj | state.game_objects]})
   end
 
+  def update_direction(state, type, player_id, direction) do
+    game_objects = state.game_objects |> Enum.map(fn(obj) ->
+      if obj.module == Subs.Sub && obj.data.player_id == player_id do
+        if type == :start do
+          Map.merge(obj, %{data: Subs.Sub.start_direction(obj.data, direction) })
+        else
+          Map.merge(obj, %{data: Subs.Sub.end_direction(obj.data, direction) })
+        end
+      else
+        obj
+      end
+    end)
+    Map.merge(state, %{game_objects: game_objects})
+  end
+
   defp start_update(state) do
     dt = (Utils.time_now() - state.last_loop) / 1000
     Map.merge(state, %{delta_time: dt, last_loop: Utils.time_now()})

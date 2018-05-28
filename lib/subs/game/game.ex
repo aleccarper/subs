@@ -12,6 +12,10 @@ defmodule Subs.Game do
     GenServer.cast(:game_manager, {:add_game_object, obj})
   end
 
+  def update_direction(type, player_id, direction) do
+    GenServer.cast(:game_manager, {:update_direction, type, player_id, direction})
+  end
+
   ### SERVER ###
 
   def init([]) do
@@ -29,6 +33,11 @@ defmodule Subs.Game do
   def handle_cast({:add_game_object, obj}, state) do
     state =  GameState.add_game_object(state, obj)
     {:noreply, state}
+  end
+
+  def handle_cast({:update_direction, type, player_id, direction}, state) do
+    state = GameState.update_direction(state, type, player_id, direction)
+    {:noreply, state |> IO.inspect}
   end
 
   defp schedule_loop(state) do

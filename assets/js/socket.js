@@ -45,6 +45,55 @@ class Sub {
   }
 }
 
+document.addEventListener('keydown', function(event) {
+  if (event.repeat) {
+    return
+  }
+  switch(event.code) {
+    case 'KeyA':
+      sendStartDirection("left")
+      break;
+    case 'KeyS':
+      sendStartDirection("down")
+      break;
+    case 'KeyD':
+      sendStartDirection("right")
+      break;
+    case 'KeyW':
+      sendStartDirection("up")
+      break;
+  }
+});
+
+document.addEventListener('keyup', function(event) {
+  if (event.repeat) {
+    return
+  }
+  switch(event.code) {
+    case 'KeyA':
+      sendEndDirection("left")
+      break;
+    case 'KeyS':
+      sendEndDirection("down")
+      break;
+    case 'KeyD':
+      sendEndDirection("right")
+      break;
+    case 'KeyW':
+      sendEndDirection("up")
+      break;
+  }
+});
+
+function sendStartDirection(direction) {
+  channel.push("sub:start_direction", {player_id: player_id, direction: direction})
+}
+
+function sendEndDirection(direction) {
+  channel.push("sub:end_direction", {player_id: player_id, direction: direction})
+}
+
+
 function update_sub(data) {
   if (subs[data.player_id] == null) {
     subs[data.player_id] = new Sub(data)
