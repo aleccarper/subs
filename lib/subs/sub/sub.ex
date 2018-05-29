@@ -4,9 +4,9 @@ defmodule Subs.Sub do
   alias Graphmath.Vec2
 
   def new(player_id) do
-    obj = %__MODULE__{player_id: player_id}
-    Subs.GameObject.new(__MODULE__, obj)
-    obj
+    sub = %__MODULE__{player_id: player_id}
+    Subs.Game.add_sub(sub)
+    sub
   end
 
   def start_direction(sub, direction) do
