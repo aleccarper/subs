@@ -28,8 +28,8 @@ var subs = new Map()
 class Sub {
   constructor(data) {
     this._data = data
-    this._geometry = new THREE.BoxGeometry( 1, 1, 1 );
-    this._material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    this._geometry = new THREE.SphereGeometry(1, 50, 50, 0, Math.PI * 1, 0, Math.PI * 1);
+    this._material = new THREE.MeshBasicMaterial( { color: '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6) } );
     this._model = new THREE.Mesh( this._geometry, this._material );
     scene.add(this._model);
   }
