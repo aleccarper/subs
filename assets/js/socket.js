@@ -24,11 +24,32 @@ channel.join()
 
 
 var subs = new Map()
+var torpedos = new Map()
 
 class Sub {
   constructor(data) {
     this._data = data
     this._geometry = new THREE.SphereGeometry(1, 50, 50, 0, Math.PI * 1, 0, Math.PI * 1);
+    this._material = new THREE.MeshBasicMaterial( { color: '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6) } );
+    this._model = new THREE.Mesh( this._geometry, this._material );
+    scene.add(this._model);
+  }
+
+  update(data) {
+    this._data = data
+    this._model.position.x = this._data.position.x
+    this._model.position.y = this._data.position.y
+  }
+
+  position() {
+    return this._data.position
+  }
+}
+
+class Torpedo {
+  constructor(data) {
+    this._data = data
+    this._geometry = new THREE.SphereGeometry(1, 50, 50, 0, Math.PI * 0.5, 0, Math.PI * 0.5);
     this._material = new THREE.MeshBasicMaterial( { color: '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6) } );
     this._model = new THREE.Mesh( this._geometry, this._material );
     scene.add(this._model);
@@ -62,6 +83,18 @@ document.addEventListener('keydown', function(event) {
     case 'KeyW':
       sendStartDirection("up")
       break;
+    case 'KeyJ':
+      fireTorpedo("left")
+      break;
+    case 'KeyK':
+      fireTorpedo("down")
+      break;
+    case 'KeyL':
+      fireTorpedo("right")
+      break;
+    case 'KeyI':
+      fireTorpedo("up")
+      break;
   }
 });
 
@@ -93,6 +126,10 @@ function sendEndDirection(direction) {
   channel.push("sub:end_direction", {player_id: player_id, direction: direction})
 }
 
+function fireTorpedo(direction) {
+  channel.push("sub:fire_torpedo", {player_id: player_id, direction: direction})
+}
+
 
 function update_sub(data) {
   if (subs[data.player_id] == null) {
@@ -100,6 +137,14 @@ function update_sub(data) {
   }
 
   subs[data.player_id].update(data)
+}
+
+function update_torpedo(data) {
+  if (torpedos[data.id] == null) {
+    torpedos[data.id] = new Torpedo(data)
+  }
+
+  torpedos[data.id].update(data)
 }
 
 var scene = new THREE.Scene();
