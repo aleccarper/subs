@@ -1,5 +1,5 @@
 defmodule Subs.GameState do
-  defstruct subs: %{}, last_loop: 0, delta_time: 0.0
+  defstruct game_objects: %{}, last_loop: 0, delta_time: 0.0
 
   alias Subs.{Sub, Utils}
   
@@ -10,22 +10,26 @@ defmodule Subs.GameState do
   def update(state) do
     state |>
     start_update |>
-    update_subs
+    run_updates
   end
 
-  def add_sub(state, sub) do
-    new_subs = Map.merge(state.subs, %{sub.player_id => sub})
-    %{state | subs: new_subs}
+  def add_game_object(state, game_object) do
+    %{state | game_objects: Map.merge(state.game_objects, %{game_object.id => game_object})}
   end
 
-  def change_direction(state, type, player_id, direction) when type == :start do
-    updated_subs = %{state.subs | player_id => state.subs[player_id] |> Sub.start_direction(direction)}
-    %{state | subs: updated_subs}
+  def fire_torpedo(state, sub_id, direction) do
+    updated_game_objects = %{state.game_objects | sub_id => state.game_objects[sub_id] |> Sub.fire_torpedo(direction)}
+    %{state | game_objects: updated_game_objects}
   end
 
-  def change_direction(state, type, player_id, direction) when type == :end do
-    updated_subs = %{state.subs | player_id => state.subs[player_id] |> Sub.end_direction(direction)}
-    %{state | subs: updated_subs}
+  def change_direction(state, type, sub_id, direction) when type == :start do
+    updated_game_objects = %{state.game_objects | sub_id => state.game_objects[sub_id] |> Sub.start_direction(direction)}
+    %{state | game_objects: updated_game_objects}
+  end
+
+  def change_direction(state, type, sub_id, direction) when type == :end do
+    updated_game_objects = %{state.game_objects | sub_id => state.game_objects[sub_id] |> Sub.end_direction(direction)}
+    %{state | game_objects: updated_game_objects}
   end
 
   defp start_update(state) do
@@ -33,10 +37,10 @@ defmodule Subs.GameState do
     Map.merge(state, %{delta_time: dt, last_loop: Utils.time_now()})
   end
 
-  def update_subs(state) do
-    new_subs = state.subs |> 
-    Enum.map(fn({key, sub}) -> {key, Sub.update(sub, state)} end) |>
+  def run_updates(state) do
+    updated_game_objects = state.game_objects |> 
+    Enum.map(fn({key, game_object}) -> {key, game_object.__struct__.update(game_object, state)} end) |>
     Enum.into(%{})
-    %{state | subs: new_subs}
+    %{state | game_objects: updated_game_objects}
   end
 end

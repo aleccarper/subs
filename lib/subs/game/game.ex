@@ -8,12 +8,16 @@ defmodule Subs.Game do
     GenServer.start_link(__MODULE__, [], name: :game_manager)
   end
 
-  def add_sub(sub) do
-    GenServer.cast(:game_manager, {:add_sub, sub})
+  def add_game_object(game_object) do
+    GenServer.cast(:game_manager, {:add_game_object, game_object})
   end
 
   def update_direction(type, player_id, direction) do
     GenServer.cast(:game_manager, {:update_direction, type, player_id, direction})
+  end
+
+  def fire_torpedo(player_id, direction) do
+    GenServer.cast(:game_manager, {:fire_torpedo, player_id, direction})
   end
 
   ### SERVER ###
@@ -30,13 +34,18 @@ defmodule Subs.Game do
     {:noreply, state}
   end
 
-  def handle_cast({:add_sub, sub}, state) do
-    state =  GameState.add_sub(state, sub)
+  def handle_cast({:add_game_object, game_object}, state) do
+    state =  GameState.add_game_object(state, game_object)
+    {:noreply, state}
+  end
+
+  def handle_cast({:fire_torpedo, player_id, direction}, state) do
+    state =  GameState.fire_torpedo(state, player_id, direction)
     {:noreply, state}
   end
 
   def handle_cast({:update_direction, type, player_id, direction}, state) do
-    {:noreply, GameState.change_direction(state, type, player_id, direction) |> IO.inspect}
+    {:noreply, GameState.change_direction(state, type, player_id, direction)}
   end
 
   defp schedule_loop(state) do

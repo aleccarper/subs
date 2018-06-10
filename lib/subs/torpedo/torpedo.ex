@@ -1,12 +1,19 @@
 defmodule Subs.Torpedo do
-  defstruct id: nil, position: %{x: 0, y: 0}, direction: %{x: 0, y: 0}, target_direction: %{x: 0, y: 0}, speed: 0, max_speed: 5, propulsion: 1.25, life_time: 0.0
+  defstruct id: nil, player_id: nil, position: %{x: 0, y: 0}, direction: %{x: 0, y: 0}, target_direction: %{x: 0, y: 0}, speed: 0, max_speed: 8, propulsion: 1.75, life_time: 0.0
   
   alias Graphmath.Vec2
   alias Subs.Utils
   
-  def new(start_direction, target_direction) do
-    torpedo = %__MODULE__{direction: start_direction, target_direction: target_direction}
-    Subs.Game.add_torpedo(torpedo)
+  def new(start_position, start_direction, start_speed, target_direction, player_id) do
+    torpedo = %__MODULE__{
+      id: UUID.uuid4(),
+      position: start_position,
+      direction: start_direction, 
+      speed: start_speed,
+      target_direction: target_direction, 
+      player_id: player_id
+    }
+    Subs.Game.add_game_object(torpedo)
     torpedo
   end
 

@@ -18,6 +18,11 @@ channel.on("sub:move", payload => {
   update_sub(payload)
 })
 
+channel.on("torpedo:move", payload => {
+  update_torpedo(payload)
+})
+
+
 channel.join()
   .receive("ok", resp => { console.log("Joined successfully", resp) })
   .receive("error", resp => { console.log("Unable to join", resp) })
@@ -49,7 +54,7 @@ class Sub {
 class Torpedo {
   constructor(data) {
     this._data = data
-    this._geometry = new THREE.SphereGeometry(1, 50, 50, 0, Math.PI * 0.5, 0, Math.PI * 0.5);
+    this._geometry = new THREE.SphereGeometry(0.5, 50, 50, 0, Math.PI * 1, 0, Math.PI * 1);
     this._material = new THREE.MeshBasicMaterial( { color: '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6) } );
     this._model = new THREE.Mesh( this._geometry, this._material );
     scene.add(this._model);
@@ -132,11 +137,11 @@ function fireTorpedo(direction) {
 
 
 function update_sub(data) {
-  if (subs[data.player_id] == null) {
-    subs[data.player_id] = new Sub(data)
+  if (subs[data.id] == null) {
+    subs[data.id] = new Sub(data)
   }
 
-  subs[data.player_id].update(data)
+  subs[data.id].update(data)
 }
 
 function update_torpedo(data) {

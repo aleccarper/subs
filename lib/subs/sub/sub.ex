@@ -1,12 +1,12 @@
 defmodule Subs.Sub do
-  defstruct player_id: nil, position: %{x: 0, y: 0}, direction: %{x: 0, y: 0}, target_direction: %{x: 0, y: 0}, speed: 0, max_speed: 3, propulsion: 0.75, drift: 0.35
+  defstruct id: nil, position: %{x: 0, y: 0}, direction: %{x: 0, y: 0}, target_direction: %{x: 0, y: 0}, speed: 0, max_speed: 3, propulsion: 0.75, drift: 0.35
   
   alias Graphmath.Vec2
   alias Subs.Utils
   
   def new(player_id) do
-    sub = %__MODULE__{player_id: player_id}
-    Subs.Game.add_sub(sub)
+    sub = %__MODULE__{id: player_id}
+    Subs.Game.add_game_object(sub)
     sub
   end
 
@@ -28,6 +28,17 @@ defmodule Subs.Sub do
       direction == "up" -> %{ x: sub.target_direction.x, y: 0 }
     end
     Map.merge(sub, %{target_direction: new_direction})
+  end
+
+  def fire_torpedo(sub, direction) do
+    target_direction = cond do
+      direction == "left" -> %{ x: -1, y: 0 }
+      direction == "right" -> %{ x: 1, y: 0 }
+      direction == "down" -> %{ x: 0, y: -1 }
+      direction == "up" -> %{ x: 0, y: 1 }
+    end
+    Subs.Torpedo.new(sub.position, sub.direction, sub.speed, target_direction, sub.id)
+    sub
   end
 
   def update(sub, game_state) do
@@ -64,7 +75,7 @@ defmodule Subs.Sub do
         Vec2.add({sub.position.x, sub.position.y})
 
       
-      Map.merge(sub, %{position: %{x: pos_x, y: pos_y}}) |> IO.inspect
+      Map.merge(sub, %{position: %{x: pos_x, y: pos_y}})
     end
   end
 

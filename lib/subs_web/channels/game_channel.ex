@@ -2,7 +2,7 @@ defmodule SubsWeb.GameChannel do
   use Phoenix.Channel
 
   def join("game", player_id, socket) do
-    Subs.Sub.new(player_id) |> IO.inspect
+    Subs.Sub.new(player_id)
     {:ok, socket}
   end
   
@@ -13,6 +13,11 @@ defmodule SubsWeb.GameChannel do
 
   def handle_in("sub:end_direction", %{"player_id" => player_id, "direction" => direction}, socket) do
     Subs.Game.update_direction(:end, player_id, direction)
+    {:noreply, socket}
+  end
+
+  def handle_in("sub:fire_torpedo", %{"player_id" => player_id, "direction" => direction}, socket) do
+    Subs.Game.fire_torpedo(player_id, direction)
     {:noreply, socket}
   end
 
